@@ -1,0 +1,129 @@
+﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Schedule
+
+    <div class="control-section">
+        <div class="content-wrapper">
+            @Html.EJS().Schedule("schedule").Width("100%").Height("650px").Views(ViewBag.view).ActionBegin("onActionBegin").EventRendered("onEventRendered").PopupOpen("onPopupOpen").EventSettings(new ScheduleEventSettings { DataSource = ViewBag.datasource }).EditorTemplate("#EventEditorTemplate").ShowQuickInfo(true).SelectedDate(new DateTime(2018, 2, 15)).Render()
+
+
+            @Html.EJS().Schedule("schedule").Width("100%").Height("650px").EditorTemplate("#EventEditorTemplate").EventRendered("onEventRendered").CssClass("schedule-drag-drop").Views(view => { view.Option(View.TimelineDay).Add(); view.Option(View.TimelineMonth).Add(); }).CurrentView(View.TimelineDay).SelectedDate(new DateTime(2021, 4, 22)).WorkHours(new ScheduleWorkHours { Highlight = true, Start = "08:00", End = "18:00" }).Group(group => group.EnableCompactView(false).Resources(ViewBag.Resources)).Resources(res =>
+       {
+
+           res.DataSource(ViewBag.treeDataSource).Field("ID").Title("Name").Name("Jobs").TextField("Name").IdField("ID").AllowMultiple(true).Add();
+       }).ResourceHeaderTemplate("#resource-template").ActionBegin("OnActionBegin").Drag("OnItemDrag").EventSettings(
+                       new ScheduleEventSettings { DataSource = ViewBag.datasource })).Render()
+
+
+
+        </div>
+    </div>
+    <style>
+        .custom-event-editor .e-textlabel {
+            padding-right: 15px;
+            text-align: right;
+        }
+
+        .custom-event-editor td {
+            padding: 7px;
+            padding-right: 16px;
+        }
+    </style>
+    <script id="EventEditorTemplate" type="text/template">
+        <table class="custom-event-editor" width="100%" cellpadding="5">
+            <tbody>
+                <tr>
+                    <td class="e-textlabel">Summary</td>
+                    <td colspan="4">
+                        <input id="Subject" class="e-field e-input" type="text" value="" name="Subject" style="width: 100%" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="e-textlabel">Status</td>
+                    <td colspan="4">
+                        <input type="text" id="EventType" name="EventType" class="e-field" style="width: 100%" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="e-textlabel">From</td>
+                    <td colspan="4">
+                        <input id="StartTime" class="e-field" type="text" name="StartTime" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="e-textlabel">To</td>
+                    <td colspan="4">
+                        <input id="EndTime" class="e-field" type="text" name="EndTime" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="e-textlabel">Reason</td>
+                    <td colspan="4">
+                        <textarea id="Description" class="e-field e-input" name="Description" rows="3" cols="50"
+                                  style="width: 100%; height: 60px !important; resize: vertical"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/javascript">
+        function onPopupOpen(args) {
+            if (args.type === 'Editor') {
+                var statusElement = args.element.querySelector('#EventType');
+                if (!statusElement.classList.contains('e-dropdownlist')) {
+                    var dropDownListObject = new ej.dropdowns.DropDownList({
+                        placeholder: 'Choose status', value: statusElement.value,
+                        dataSource: ['New', 'Requested', 'Confirmed']
+                    });
+                    dropDownListObject.appendTo(statusElement);
+                    statusElement.setAttribute('name', 'EventType');
+                }
+                var startElement = args.element.querySelector('#StartTime');
+                if (!startElement.classList.contains('e-datetimepicker')) {
+                    new ej.calendars.DateTimePicker({ value: new Date(startElement.value) || new Date() }, startElement);
+                }
+                var endElement = args.element.querySelector('#EndTime');
+                if (!endElement.classList.contains('e-datetimepicker')) {
+                    new ej.calendars.DateTimePicker({ value: new Date(endElement.value) || new Date() }, endElement);
+                }
+            }
+        }
+        function onEventRendered(args) {
+            var categoryColor;
+            switch (args.data.EventType) {
+                case 'Requested':
+                    categoryColor = '#F57F17';
+                    break;
+                case 'Confirmed':
+                    categoryColor = '#7fa900';
+                    break;
+                case 'New':
+                    categoryColor = '#8e24aa';
+                    break;
+            }
+            if (!args.element || !categoryColor) {
+                return;
+            }
+            var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+            if (scheduleObj.currentView === 'Agenda') {
+                (args.element.firstChild).style.borderLeftColor = categoryColor;
+            } else {
+                args.element.style.backgroundColor = categoryColor;
+            }
+        }
+        function onActionBegin(args) {
+            var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+            if (args.requestType === 'eventCreate' || args.requestType === 'eventChange') {
+                var data;
+                if (args.requestType === 'eventCreate') {
+                    data = args.data[0];
+                }
+                else if (args.requestType === 'eventChange') {
+                    data = args.data;
+                }
+                if (!scheduleObj.isSlotAvailable(data.StartTime, data.EndTime)) {
+                    args.cancel = true;
+                }
+            }
+        }
+    </script>

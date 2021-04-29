@@ -1,0 +1,20 @@
+﻿@{ ViewBag.Title = "Scheduler Page";}
+
+<div>
+    @Html.EJS().Schedule("schedule").Width("100%").Height("700px").SelectedDate(new DateTime(2021, 4, 21)).EventSettings(es => es.DataSource(dataManager =>
+                            {
+                                dataManager.Url("/Home/LoadData").CrudUrl("/Home/UpdateData").CrossDomain(true).Adaptor("UrlAdaptor");
+                            })).Render()
+</div>
+
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+        $(function () {
+           var msg = '@ViewData["result"]';
+           alert(msg);
+           window.location.href = "@Url.Action("About", "Home")";
+    });
+</script>

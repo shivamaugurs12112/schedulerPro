@@ -1,0 +1,673 @@
+﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Schedule
+
+
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/scheduler/applyCategoryColor.js"></script>
+<style>
+    .custom-field-row {
+        margin-bottom: 20px;
+    }
+</style>
+@*@section ControlsSection{*@
+<div class="control-section">
+    <div class="content-wrapper">
+        <div class="schedule-container">
+            <div class="title-container">
+                <h1 class="title-text">Scheduler Droppable</h1>
+            </div>
+            @Html.EJS().Schedule("schedule").Width("100%").Height("1000px").ActionBegin("OnActionBegin2").EventRendered("onEventRendered2").PopupOpen("onPopupOpen2").CssClass("schedule-drag-drop").Views(view => { view.Option(View.TimelineDay).Add(); view.Option(View.TimelineMonth).Add(); }).CurrentView(View.TimelineDay).SelectedDate(new DateTime(2021, 4, 22)).WorkHours(new ScheduleWorkHours { Highlight = true, Start = "08:00", End = "18:00" }).Group(group => group.EnableCompactView(false).Resources(ViewBag.Resources)).Resources(res =>
+            {
+
+            res.DataSource(ViewBag.Jobs).Field("ResourceId").Title("Name").Name("Jobs").TextField("Name").GroupIDField("ID").IdField("ID").AllowMultiple(true).Add();
+            }).ResourceHeaderTemplate("#resource-template").ActionBegin("OnActionBegin").Drag("OnItemDrag").EventSettings(new ScheduleEventSettings { DataSource = ViewBag.datasource }).Render()
+
+
+        </div>
+        <div class="treeview-container">
+            <div class="title-container">
+                <h2 class="title-text">Person(Contacts)</h2>
+            </div>
+            @Html.EJS().TreeView("treedata").Fields(fields => fields.DataSource(ViewBag.treeDataSource).Id("ID").Text("Name")).AllowDragAndDrop(true).NodeDragStop("OnTreeDragStop").NodeDragging("OnItemDrag").NodeTemplate("#treeTemplate").CssClass("treeview-external-drag").Render()
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<style>
+    .custom-event-editor .e-textlabel {
+        padding-right: 15px;
+        text-align: right;
+    }
+   
+    .custom-event-editor td {
+        padding: 7px;
+        padding-right: 16px;
+    }
+
+    /*.schedule-cell-dimension.e-schedule .e-timeline-view .e-date-header-wrap table col,
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-content-wrap table col {
+        width: 100px;
+    }
+
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-time-cells-wrap table td,
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-work-cells {
+        height: 200px;
+    }*/
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-date-header-wrap table col,
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-content-wrap table col {
+        width: 100px;
+    }
+
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-time-cells-wrap table td,
+    .schedule-cell-dimension.e-schedule .e-timeline-view .e-work-cells {
+        height: 100px;
+    } 
+
+</style>
+
+<style>
+    .content-wrapper {
+        display: -ms-flexbox;
+        display: flex;
+    }
+
+    .e-device-hover {
+        background-color: #e0e0e0 !important;
+    }
+
+    .schedule-container {
+        padding-right: 10px;
+        width: 100%;
+    }
+
+    .title-container {
+        padding-bottom: 10px;
+    }
+
+    .title-text {
+        font-size: 18px;
+        margin: 0px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .treeview-external-drag #waiting {
+        height: 100%;
+        padding: 0;
+    }
+
+    .treeview-external-drag #waitid {
+        float: left;
+        width: 13%;
+        text-align: center;
+        line-height: 30px;
+        font-size: 13px;
+        font-family: "Segoe UI";
+        color: #f9920b;
+        overflow: hidden;
+        margin: 9px 0;
+        padding: 0 2px 0 0;
+    }
+
+    .treeview-external-drag #waitdetails {
+        width: 95%;
+        float: left;
+        height: 100%;
+        padding: 0;
+    }
+
+    .treeview-external-drag #waitlist {
+        width: 100%;
+        height: 50%;
+        font-weight: bold;
+        font-family: "Segoe UI";
+        font-size: 12px;
+        color: #545554;
+        padding: 5px 0 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .treeview-external-drag #waitcategory {
+        height: 50%;
+        font-family: "Segoe UI";
+        font-size: 10px;
+        color: #545554;
+        opacity: 0.6;
+        padding-left: 10px;
+        padding-top: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .treeview-external-drag .e-list-text,
+    .e-bigger .treeview-external-drag .e-list-text {
+        background: white;
+        border: 0.5px solid #E1E7EC;
+        height: 50px;
+        line-height: 15px;
+        padding: 0 5px;
+        width: 220px;
+    }
+
+    .treeview-external-drag .e-list-parent,
+    .e-bigger .treeview-external-drag .e-list-parent {
+        height: 100%;
+        padding: 0 2px;
+    }
+
+    .treeview-external-drag .e-list-item,
+    .e-bigger .treeview-external-drag .e-list-item {
+        height: 100%;
+        padding: 0 0 5px 0;
+    }
+
+    .treeview-external-drag .e-fullrow,
+    .e-bigger .treeview-external-drag .e-fullrow {
+        height: 55px;
+    }
+
+    .treeview-external-drag .e-list-item.e-hover > .e-fullrow,
+    .treeview-external-drag .e-list-item.e-active > .e-fullrow,
+    .treeview-external-drag .e-list-item.e-active.e-hover > .e-fullrow,
+    .e-bigger .treeview-external-drag .e-list-item.e-hover > .e-fullrow,
+    .e-bigger .treeview-external-drag .e-list-item.e-active > .e-fullrow,
+    .e-bigger .treeview-external-drag .e-list-item.e-active.e-hover > .e-fullrow {
+        background-color: transparent;
+        border-color: transparent;
+        box-shadow: none !important;
+    }
+
+    .treeview-external-drag .e-text-content,
+    .e-bigger .treeview-external-drag .e-text-content {
+        padding: 0;
+    }
+
+    .e-drag-item.e-treeview.treeview-external-drag,
+    .e-bigger .e-drag-item.e-treeview.treeview-external-drag {
+        padding: 0 !important;
+    }
+
+    .e-schedule.schedule-drag-drop .e-timeline-view .e-resource-left-td,
+    .e-schedule.schedule-drag-drop .e-timeline-month-view .e-resource-left-td {
+        width: 160px;
+    }
+
+    .e-schedule.schedule-drag-drop .e-resource-cells.e-parent-node .specialist-category {
+        padding-left: 30px
+    }
+
+    .e-schedule.e-rtl.schedule-drag-drop .e-resource-cells.e-parent-node .specialist-category {
+        padding-right: 30px
+    }
+
+    .e-schedule.schedule-drag-drop .e-resource-cells.e-child-node .specialist-category,
+    .e-schedule.schedule-drag-drop .e-resource-cells.e-child-node .specialist-name {
+        padding: 5px
+    }
+
+    .e-schedule.schedule-drag-drop .e-resource-cells.e-parent-node .specialist-name {
+        padding: 0 10px
+    }
+
+    .e-schedule.schedule-drag-drop .e-resource-cells.e-child-node .specialist-category .specialist-image {
+        width: 45px;
+        height: 40px;
+        float: left;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .e-schedule.schedule-drag-drop .specialist-name {
+        font-size: 13px;
+    }
+
+    .e-schedule.schedule-drag-drop .specialist-designation {
+        font-size: 10px;
+    }
+
+    .e-schedule-dialog .e-all-day-time-zone-row,
+    .e-schedule-dialog .e-location-container,
+    .e-bigger .e-schedule-dialog .e-all-day-time-zone-row,
+    .e-bigger .e-schedule-dialog .e-location-container {
+        display: none;
+    }
+
+    .e-schedule-dialog .e-subject-container,
+    .e-bigger .e-schedule-dialog .e-subject-container {
+        padding-right: 0;
+        width: 100%;
+    }
+
+    .e-schedule-dialog.e-rtl .e-subject-container,
+    .e-bigger .e-schedule-dialog.e-rtl .e-subject-container {
+        padding-left: 0;
+    }
+
+    @@media (max-width: 550px) {
+
+
+        .treeview-external-drag.e-treeview,
+        .e-bigger .treeview-external-drag.e-treeview {
+            width: 225px;
+        }
+
+            .e-bigger .treeview-external-drag.e-treeview.e-drag-item {
+                position: relative !important;
+            }
+    }
+</style>
+
+<!-- Template to render tree node -->
+<script id="treeTemplate" type="text/x-template">
+    <div id="waiting">
+        <div id="waitdetails">
+            <div id="waitlist">${Name}</div>
+            <div id="waitcategory">${DepartmentName} - ${Description}</div>
+        </div>
+    </div>
+</script>
+
+<!-- Resource Header Template -->
+<script id="resource-template" type="text/x-template">
+    <div class="template-wrap">
+        <div class="specialist-category">
+            ${getConsultantImage(data)}
+            <div class="specialist-name">${getConsultantName(data)}</div>
+            <div class="specialist-designation">${getConsultantDesignation(data)}</div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+
+        function getConsultantName(value) {
+            return value.resourceData[value.resource.textField];
+        };
+
+        function getConsultantImage(value) {
+            let resourceName = value.resourceData[value.resource.textField];
+            if (resourceName === 'GENERAL' || resourceName === 'DENTAL') {
+                return '';
+            } else {
+                var path = "@Url.Content("~/Content/schedule/images/")";
+                var src = path + resourceName.toLowerCase() + ".png";
+                return '<img class="specialist-image" src=' + src + '></img>';
+            }
+        };
+
+        function getConsultantDesignation(value) {
+            let resourceName = value.resourceData[value.resource.textField];
+            if (resourceName === 'GENERAL' || resourceName === 'DENTAL') {
+                return '';
+            } else {
+                return value.resourceData.designation;
+            }
+        };
+
+        var isTreeItemDropped = false;
+        var draggedItemId = '';
+
+    function OnItemDrag(event) {
+        console.log(event);
+            var scheduleObj = document.querySelector(".e-schedule").ej2_instances[0];
+            if (scheduleObj.isAdaptive) {
+                var classElement = scheduleObj.element.querySelector('.e-device-hover');
+                if (classElement) {
+                    classElement.classList.remove('e-device-hover');
+                }
+                if (event.target.classList.contains('e-work-cells')) {
+                    ej.base.addClass([event.target], 'e-device-hover');
+                }
+            }
+            document.body.style.position = 'fixed';
+            if (document.body.style.cursor === 'not-allowed') {
+                document.body.style.cursor = '';
+            }
+            if (event.name == 'nodeDragging') {
+                var dragElementIcon = document.querySelectorAll('.e-drag-item .e-icon-expandable');
+                for (var i = 0; i < dragElementIcon.length; i++) {
+                    dragElementIcon[i].style.display = 'none';
+                }
+            }
+        }
+    @*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+
+
+    function OnActionBegin(event) {
+       
+        console.log(event);
+            if (event.requestType === 'eventCreate' && isTreeItemDropped) {
+                var treeObj = document.querySelector(".e-treeview.treeview-external-drag").ej2_instances[0];
+                var treeViewdata = treeObj.fields.dataSource;
+                var filteredPeople = treeViewdata.filter(function (item) { return item.Id !== parseInt(draggedItemId, 10); });
+                treeObj.fields.dataSource = filteredPeople;
+                var elements = document.querySelectorAll('.e-drag-item.treeview-external-drag');
+                for (var i = 0; i < elements.length; i++) {
+                    remove(elements[i]);
+                }
+
+
+
+          
+        }
+
+        
+        if (event.requestType !== 'toolbarItemRendering') {
+            var Record = [];
+            var dataV = {};
+            var action = "Add";
+            if (event.addedRecords.length > 0)
+                dataV = event.addedRecords[0];
+            else if (event.changedRecords.length > 0) {
+                dataV = event.changedRecords[0];
+                action = "edit";
+                dataV.Job = dataV.Subject
+               
+            }
+            else if (event.deletedRecords.length > 0) {
+                dataV = event.deletedRecords[0];
+                action = "delete";
+            }
+            dataV.action = action;
+           
+            delete dataV.ID   
+
+            
+            var eventJason = JSON.stringify(dataV);
+            $.ajax({
+                url: '/Home/CrudActions/',
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: eventJason,
+                success: function (data) {
+                   // alert("Saved successfully");
+                    document.getElementById("spnMessage").innerHTML = "Data Maneged Successfully!";
+                },
+                fail: function (jqXHR, textStatus) {
+                    alert("Request failed: " + textStatus);
+                }
+            });
+
+        }
+
+    }
+    
+    function OnTreeDragStop(event) {
+        var _droppedOnExisting = false;
+        if ($(event.target).hasClass('e-appointment')) {
+            alert($(event.target).attr('data-event-id'));
+        } else {
+            $(event.target).parents().each(function (index, ele) {
+                if ($(ele).hasClass('e-appointment')) {
+                    alert($(ele).attr('data-event-id'));
+                    _droppedOnExisting = true;
+
+                    var dataParams = {};
+                    dataParams.action = "editFromDrop";
+                    //dataParams.StartTime = cellData.startTime;
+                    //dataParams.EndTime = cellData.endTime;
+                    dataParams.Id = $(ele).attr('data-event-id');
+                    dataParams.attendeesAsString = event.draggedNodeData.id;
+                    //dataParams.ResourceId = resourceDetails.resourceData.ID;
+
+                    var eventJason = JSON.stringify(dataParams);
+                    $.ajax({
+                        url: '/Home/CrudActions/',
+                        method: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: eventJason,
+                        success: function (data) {
+                            // alert("Saved successfully");
+                            document.getElementById("spnMessage").innerHTML = "Updated Successfully!";
+                            alert("record updated !");
+                            var prop = getGlobalProperties('Schedule');
+                            var index = window[prop].eventsData.findIndex(x => x.Id == dataParams.Id);
+                            console.log(JSON.stringify(window[prop].eventsData[index].Attendees));
+                            //Attendees
+                            if (Array.isArray(window[prop].eventsData[index].Attendees)) {
+
+                                if (window[prop].eventsData[index].Attendees.findIndex(x => x == dataParams.attendeesAsString) == -1) {
+                                    window[prop].eventsData[index].Attendees.push(dataParams.attendeesAsString);
+                                }
+
+                            } else {
+                                window[prop].eventsData[index].Attendees = [dataParams.attendeesAsString];
+                            }
+                            console.log(JSON.stringify(window[prop].eventsData[index].Attendees));
+                            //location.reload();
+                        },
+                        fail: function (jqXHR, textStatus) {
+                            alert("Request failed: " + textStatus);
+                        }
+                    });
+
+
+
+
+
+
+                    return false;
+                }
+            });
+
+            if (_droppedOnExisting == false) {
+                alert("dropped on timeSlot.");
+
+                $(event.target).children().each(function (index, ele) {
+                if ($(ele).hasClass('e-appointment')) {
+                    alert($(ele).attr('data-event-id'));
+                    return false;
+                }
+            })
+
+
+            var treeElement = ej.base.closest(event.target, '.e-treeview');
+            var scheduleObj = document.querySelector(".e-schedule").ej2_instances[0];
+            var classElement = scheduleObj.element.querySelector('.e-device-hover');
+            if (classElement) {
+                classElement.classList.remove('e-device-hover');
+            }
+            if (!treeElement) {
+                event.cancel = true;
+                var scheduleElement = ej.base.closest(event.target, '.e-content-wrap');
+                if (scheduleElement) {
+                    var treeviewData = this.fields.dataSource;
+                    if (event.target.classList.contains('e-work-cells')) {
+                        var filteredData = treeviewData.filter(function (item) { return item.ID === event.draggedNodeData.id; });
+                        var cellData = scheduleObj.getCellDetails(event.target);
+                        console.log("cell data is");
+                        console.log(cellData);
+                        console.log(event.target);
+                        var resourceDetails = scheduleObj.getResourcesByIndex(cellData.groupIndex);
+                        console.log("resource detail is");
+                        console.log(resourceDetails);
+                        var strina = event.draggedNodeData.id;
+                        var AttendeeData = [];
+                        AttendeeData.push(strina);
+                        var eventData = {
+                            Name: resourceDetails.resourceData.Name,
+                            StartTime: cellData.startTime,
+                            EndTime: cellData.endTime,
+                            IsAllDay: cellData.isAllDay,
+                            ResourceId: resourceDetails.resourceData.ID,
+                            Event: filteredData[0].Name,
+                            //DepartmentID: resourceDetails.resourceData.groupId,
+                            Attendees: AttendeeData
+                        };
+                        console.log("filtered event Data is");
+                        console.log(eventData);
+
+                         scheduleObj.openEditor(eventData, 'Add', true);
+                        isTreeItemDropped = true;
+                        draggedItemId = event.draggedNodeData.id;
+
+
+                    }
+                }
+            }
+         }
+            
+        }
+        }
+</script>
+
+
+
+<script type="text/javascript">
+    function onPopupOpen2(args)
+    {
+
+        if (args.type === 'Editor') {
+            if (!args.element.querySelector('.custom-field-row')) {
+
+                var label_Subject = args.element.querySelector('#label_Subject');
+                label_Subject.innerHTML = "Job";
+                var label_Description = args.element.querySelector('#label_Description');
+                label_Description.innerHTML = "Summary";
+                var row = ej.base.createElement('div', { className: 'custom-field-row' });
+                var formElement = args.element.querySelector('.e-schedule-form');
+                console.log(formElement);
+                formElement.firstChild.insertBefore(row, args.element.querySelector('.e-start-end-row'));
+                var container = ej.base.createElement('div', { className: 'custom-field-container' });
+                var inputEle = ej.base.createElement('input', {
+                    className: 'e-field', attrs: { name: 'Attendees' }
+                });
+                container.appendChild(inputEle);
+                row.appendChild(container);
+                var multiselectList = new ej.dropdowns.MultiSelect({
+                    dataSource:  @Html.Raw(Json.Encode(@ViewBag.treeDataSource))   ,
+                    fields: { text: 'Name', value: 'ID' },
+                    value: args.data.event,
+                    floatLabelType: 'Always', placeholder: 'Attendees'
+                });
+                multiselectList.appendTo(inputEle);
+                var resElem = args.element.querySelector('.e-resources-row');
+                resElem.style.display = "none";
+                var row2 = ej.base.createElement('div', { className: 'custom-field-row' });
+                formElement.firstChild.insertBefore(row2, args.element.querySelector('.e-resources-row'));
+                var container2 = ej.base.createElement('div', { className: 'custom-field-container' });
+                var inputEle2 = ej.base.createElement('input', {
+                    className: 'e-field', attrs: { name: 'Event' }
+                });
+                container2.appendChild(inputEle2);
+                row2.appendChild(container2);
+                var multiselectList2 = new ej.inputs.Input.createInput({
+                    element: inputEle2,
+                    floatLabelType: "Never",
+                    readonly: false,
+                    placeholder: "Event",
+                    name: 'Event'
+                });
+                var scheduleObj2 = document.getElementById('schedule').ej2_instances[0];
+                var Subject = args.element.querySelector('#Subject');
+                try {
+                  
+                    Subject.value = args.data.Name //bbb;
+
+                    if (typeof args.data.Name === "undefined") {
+                        var aaa = scheduleObj2.resourceCollection[0].dataSource;
+                        var bbb = aaa.find(x => x.ID === args.data.ResourceId).Name;
+                        console.log("asdaksljdhlaskjdhlajsdhlasjkdhaskjdhlaksjdasd");
+                        Subject.value = bbb;
+                    }
+                }
+                catch
+                {
+                    Subject.value = args.data.Job;
+
+                }
+            }
+            else {
+                try {
+                    var scheduleObj2 = document.getElementById('schedule').ej2_instances[0];
+                    var Subject = args.element.querySelector('#Subject');
+                    Subject.value = args.data.Name;
+                    if (typeof args.data.Name === "undefined") {
+                        var aaa = scheduleObj2.resourceCollection[0].dataSource;
+                        var bbb = aaa.find(x => x.ID === args.data.ResourceId).Name;
+                        console.log("asdaksljdhlaskjdhlajsdhlasjkdhaskjdhlaksjdasd");
+                        Subject.value = bbb;
+                    }
+                }
+                catch
+                { Subject.value = args.data.Job;}
+            }
+        }
+        else if (args.type === 'QuickInfo') {
+            var dataF = args.data.ID;
+            var dataF = args.data.ID;
+            window["ID"] = dataF;
+        }
+    }
+    function onEventRendered2(args) {
+        var categoryColor;
+        $(args.element).attr('data-event-id', args.data.Id);
+        switch (args.data.EventType) {
+            case 'Requested':
+                categoryColor = '#F57F17';
+                break;
+            case 'Confirmed':
+                categoryColor = '#7fa900';
+                break;
+            case 'New':
+                categoryColor = '#8e24aa';
+                break;
+        }
+        if (!args.element || !categoryColor) {
+            return;
+        }
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+        if (scheduleObj.currentView === 'Agenda') {
+            (args.element.firstChild).style.borderLeftColor = categoryColor;
+        } else {
+            args.element.style.backgroundColor = categoryColor;
+        }
+    }
+    function onActionBegin2(args) {
+        console.log(args.data);
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+        if (args.requestType === 'eventCreate' || args.requestType === 'eventChange') {
+            var data;
+            if (args.requestType === 'eventCreate') {
+                data = args.data[0];
+            }
+            else if (args.requestType === 'eventChange') {
+                data = args.data;
+            }
+            if (!scheduleObj.isSlotAvailable(data.StartTime, data.EndTime)) {
+                args.cancel = true;
+            }
+        }
+    }
+
+
+
+
+    function getGlobalProperties(prefix) {
+        var keyValues = [], global = window; // window for browser environments
+        for (var prop in global) {
+            if (prop.indexOf(prefix) == 0) // check the prefix
+                keyValues.push(prop);
+        }
+        return keyValues.length > 0 ? keyValues[0] : null; // build the string
+    }
+</script>
+
+
+<div style="width:100% ;font-size:larger"><span id="spnMessage" ></span></div>
+
+@*}*@
